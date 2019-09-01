@@ -1,0 +1,388 @@
+<style type="text/css">
+	*{
+		font-family: monospace;
+	}
+	body{
+		margin: 0px;
+	}
+	.info{
+		position: absolute;
+		top: 0px;
+		right: 0px;
+	}
+	.info p{
+		margin: 2px;
+	}
+	.canvas{
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		z-index: -1;
+	}
+	.player{
+		width: 64px;
+		height: 64px;
+		background-color: red;
+		position: absolute;
+	}
+</style>
+<body>
+	<div class="info">
+		<table>
+			<tbody>
+				<tr>
+					<td>Angle:</td>
+					<td><p id="angle">0deg</p></td>
+					<td>Torque:</td>
+					<td><p id="torque">0</p></td>
+				</tr>
+				<tr>
+					<td>Sinus:</td>
+					<td><p id="sin">0</p></td>
+					<td>Cosinus:</td>
+					<td><p id="cos">0</p></td>
+				</tr>
+				<tr>
+					<td>Tan:</td>
+					<td colspan="3"><p id="tan">0</p></td>
+				</tr>
+				<tr>
+					<td>Keys:</td>
+					<td colspan="3"><p id="keys">0,0,0,0</p></td>
+				</tr>
+				<tr>
+					<td>Speed:</td>
+					<td><p id="speed">0</p></td>
+					<td>Boost:</td>
+					<td><p id="boost">0</p></td>
+				</tr>
+				<tr>
+					<td>Distance:</td>
+					<td colspan="3"><p id="distance">0</p></td>
+				</tr>
+			</tbody>
+		</table>
+		<p>Boost Limit:</p>
+		<input id="boostLimit" type="range" name="boostLimit" min="1" max="9000" step="1" value="4000">
+		<p>Torque:</p>
+		<input id="torqueLimit" type="range" name="torque" min="1" max="90" step="1" value="1">
+	</div>
+	<div class="player" id="player" onclick="select('player')">
+		0
+	</div>
+	<div class="player" id="player2" onclick="select('player2')">
+		0
+	</div>
+	<canvas class="canvas" id="canvas">
+		
+	</canvas>
+</body>
+<script type="text/javascript">
+
+	var selectedObject = undefined;
+
+	var $ = function( id ) { return document.getElementById( id ); };
+
+	function select(objname)
+	{
+		var obj = $(objname);
+		selectedObject = obj;
+		console.log(objname);
+		$('torque').value = obj.torque;
+		control(obj);
+	}
+
+	// Converts from degrees to radians.
+	Math.radians = function(degrees)
+	{
+	  return degrees * Math.PI / 180;
+	};
+	 
+	// Converts from radians to degrees.
+	Math.degrees = function(radians)
+	{
+	  return radians * 180 / Math.PI;
+	};
+
+	var up = 0;
+	var down = 0;
+	var left = 0;
+	var right = 0;
+
+	$('player').angle = 0;
+	$('player').torque = 1;
+	$('player').boost = 0;
+	$('player').ypos = 64;
+	$('player').xpos = 200;
+
+	$('player2').angle = 0;
+	$('player2').torque = 1;
+	$('player2').boost = 0;
+	$('player2').ypos = 256;
+	$('player2').xpos = 200;
+
+	var canvas = document.getElementById("canvas");
+	var ctx = canvas.getContext("2d");
+
+	ctx.canvas.width  = window.innerWidth;
+  	ctx.canvas.height = window.innerHeight;
+
+	document.addEventListener('keypress', function(e)
+	{
+		if(e.key.toLowerCase() == 'w' )
+		{
+			up = 1;
+		}
+		if(e.key.toLowerCase() == 'a' )
+		{
+			left = 1;
+		}
+		if(e.key.toLowerCase() == 's' )
+		{
+			down = 1;
+		}
+		if(e.key.toLowerCase() == 'd' )
+		{
+			right = 1;
+		}
+		if(e.key.toLowerCase() == 'e' )
+		{
+			selectedObject.style.background = "#00AA00";
+		}
+		if(e.key.toLowerCase() == 'c' )
+		{
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		}
+		$('keys').innerHTML = up+","+down+","+left+","+right;
+	})
+	document.addEventListener('keyup', function(e)
+	{
+		if(e.key.toLowerCase() == 'w' )
+		{
+			up = 0;
+		}
+		if(e.key.toLowerCase() == 'a' )
+		{
+			left = 0;
+		}
+		if(e.key.toLowerCase() == 's' )
+		{
+			down = 0;
+		}
+		if(e.key.toLowerCase() == 'd' )
+		{
+			right = 0;
+		}
+		if(e.key.toLowerCase() == 'e' )
+		{
+			selectedObject.style.background = "#FF0000";
+		}
+		$('keys').innerHTML = up+","+down+","+left+","+right;
+	})
+	function distance(objone,objtwo)
+	{
+		var xOne, xTwo, yOne, yTwo;
+
+		if (objone.xpos >= objtwo.xpos)
+		{
+			xOne = objtwo.xpos;
+			xTwo = objone.xpos;
+		}
+		else
+		{
+			xOne = objone.xpos;
+			xTwo = objtwo.xpos;
+		}
+
+		if (objone.ypos >= objtwo.ypos)
+		{
+			yOne = objtwo.ypos;
+			yTwo = objone.ypos;
+		}
+		else
+		{
+			yOne = objone.ypos;
+			yTwo = objtwo.ypos;
+		}
+
+		return Math.sqrt(((xTwo-xOne)**2)+((yTwo-yOne)**2));
+	}
+	function createPlayer(x,y,id)
+	{
+		var object = document.createElement("div"); 
+		object.innerHTML = "0";
+		object.className = "player";
+		object.setAttribute("id", id);
+	}
+	function locate(obj)
+	{
+		obj.style.marginTop = obj.ypos;
+		obj.style.marginLeft = obj.xpos;
+	}
+	function control(obj)
+	{
+		var pixelsPerStep = 1;
+		var boostLimit = parseInt($('boostLimit').value);
+
+		obj.torque = parseInt($('torqueLimit').value);
+
+		var angle = obj.angle;
+		var boost = obj.boost;
+		var ypos = obj.ypos;
+		var xpos = obj.xpos;
+
+		if (obj.boost < 1)
+		{
+			speed = 0;
+		}
+		else
+		{
+			speed = 1;
+			if (obj.boost < boostLimit)
+			{
+				pixelsPerStep = boost/1000;
+			}
+			else
+			{
+				pixelsPerStep = boostLimit/1000;
+			}
+		}
+
+	    setTimeout(function()
+	    {
+	    	var preypos = obj.ypos;
+	    	var prexpos = obj.xpos;
+
+	    	var cos = Math.cos(Math.radians(obj.angle)).toFixed(4);
+	        var sin = Math.sin(Math.radians(obj.angle)).toFixed(4);
+
+	    	if (right == 1)
+	    	{
+	    		var sum = obj.angle+obj.torque;
+
+	    		if (sum > 359)
+	    		{
+	    			obj.angle=360-sum;
+	    		}
+	    		else
+	    		{
+	    			obj.angle+=obj.torque;
+	    		}
+	    	}
+	    	if (left == 1)
+	    	{
+	    		var sum = obj.angle-obj.torque;
+
+	    		if (sum < 1)
+	    		{
+	    			obj.angle=360+sum;
+	    		}
+	    		else
+	    		{
+	    			obj.angle-=obj.torque;
+	    		}
+	    	}	
+	    	if (up == 1)
+	    	{
+	        	if (cos > 0)
+	        	{
+	        		obj.ypos -= pixelsPerStep*Math.abs(cos);
+	        	}
+	        	else
+	        	{
+	        		obj.ypos += pixelsPerStep*Math.abs(cos);
+	        	}
+	        	if (sin > 0) {
+	        		obj.xpos += pixelsPerStep*Math.abs(sin);
+	        	}
+	        	else
+	        	{
+	        		obj.xpos -= pixelsPerStep*Math.abs(sin);
+	        	}
+			}
+			if (down == 1)
+			{
+	        	if (cos > 0)
+	        	{
+	        		obj.ypos += pixelsPerStep*Math.abs(cos);
+	        	}
+	        	else
+	        	{
+	        		obj.ypos -= pixelsPerStep*Math.abs(cos);
+	        	}
+	        	if (sin > 0) {
+	        		obj.xpos -= pixelsPerStep*Math.abs(sin);
+	        	}
+	        	else
+	        	{
+	        		obj.xpos += pixelsPerStep*Math.abs(sin);
+	        	}
+			}
+			if (obj.ypos == preypos)
+			{
+				if (obj.xpos == prexpos)
+				{
+					if (obj.boost > 10)
+					{
+						obj.boost -= 10;
+					}
+					else
+					{
+						if(obj.boost != 0)
+						{
+							obj.boost -= 1;
+						}
+					}
+				}
+				else
+				{
+					obj.boost += 1;
+				}
+			}
+			else
+			{
+				if (obj.xpos == prexpos)
+				{
+					obj.boost += 1;
+				}
+				else
+				{
+					obj.boost += 1;
+				}
+			}
+			if (obj.boost > boostLimit)
+			{
+				obj.boost = boostLimit;
+			}
+
+			ctx.beginPath();
+			ctx.moveTo(prexpos+32, preypos+32);
+			ctx.lineTo(obj.xpos+32, obj.ypos+32);
+			ctx.stroke();
+
+			obj.style.transform = 'rotate('+obj.angle+'deg)';
+			obj.innerHTML = obj.boost;
+
+			locate(obj);
+
+			$('angle').innerHTML = obj.angle+"deg";
+			$('sin').innerHTML = sin;
+			$('cos').innerHTML = cos;
+			$('speed').innerHTML = speed;
+			$('boost').innerHTML = obj.boost+"/"+boostLimit;
+			$('torque').innerHTML = obj.torque;
+			$('distance').innerHTML = distance($('player'),$('player2'))
+
+			if (obj == selectedObject)
+			{
+				control(obj);
+			}
+			else
+			{
+				obj.boost = 0;
+			}
+	    }, 1);
+	}
+
+	control($('player'))
+</script>
