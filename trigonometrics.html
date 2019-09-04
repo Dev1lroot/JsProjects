@@ -31,6 +31,10 @@
 		<table>
 			<tbody>
 				<tr>
+					<td>Object:</td>
+					<td colspan="3"><p id="object">0</p></td>
+				</tr>
+				<tr>
 					<td>Angle:</td>
 					<td><p id="angle">0deg</p></td>
 					<td>Torque:</td>
@@ -60,22 +64,20 @@
 					<td>Distance:</td>
 					<td colspan="3"><p id="distance">0</p></td>
 				</tr>
+				<tr>
+					<td>Dev:</td>
+					<td colspan="3"><p id="dev">0</p></td>
+				</tr>
 			</tbody>
 		</table>
 		<p>Boost Limit:</p>
-		<input id="boostLimit" type="range" name="boostLimit" min="1" max="9000" step="1" value="4000">
+		<input id="boostLimit" type="number" name="boostLimit" min="1" max="9000" step="1" value="4000">
 		<p>Torque:</p>
-		<input id="torqueLimit" type="range" name="torque" min="1" max="90" step="1" value="1">
+		<input id="torqueLimit" type="number" name="torque" min="1" max="90" step="1" value="1">
 	</div>
-	<div class="player" id="player" onclick="select('player')">
-		0
+	<div id="playground">
 	</div>
-	<div class="player" id="player2" onclick="select('player2')">
-		0
-	</div>
-	<canvas class="canvas" id="canvas">
-		
-	</canvas>
+	<canvas class="canvas" id="canvas"></canvas>
 </body>
 <script type="text/javascript">
 
@@ -109,17 +111,9 @@
 	var left = 0;
 	var right = 0;
 
-	$('player').angle = 0;
-	$('player').torque = 1;
-	$('player').boost = 0;
-	$('player').ypos = 64;
-	$('player').xpos = 200;
+	createPlayer(64,64,'player');
 
-	$('player2').angle = 0;
-	$('player2').torque = 1;
-	$('player2').boost = 0;
-	$('player2').ypos = 256;
-	$('player2').xpos = 200;
+	createPlayer(256,64,'player2');
 
 	var canvas = document.getElementById("canvas");
 	var ctx = canvas.getContext("2d");
@@ -207,12 +201,51 @@
 
 		return Math.sqrt(((xTwo-xOne)**2)+((yTwo-yOne)**2));
 	}
+	function targeting(observer,target){
+
+		var zsin = target.xpos - observer.xpos;
+
+		var zcos = observer.ypos - target.ypos;
+
+		var ztan = Math.atan(zsin / zcos).toFixed(4);
+		if (sin >= cos) {
+			var zdeg = Math.atan2(zsin, zcos) * 180 / Math.PI;
+		}
+		else
+		{
+			var zdeg = Math.atan2(zcos, zsin) * 180 / Math.PI;
+		}
+
+		if (zdeg <= 0) {
+			zdeg = 360-Math.abs(zdeg);
+		}
+		if (zdeg >= 361) {
+			zdeg = Math.abs(zdeg)-360;
+		}
+
+		$('dev').innerHTML = "deg:"+zdeg;
+
+	}
 	function createPlayer(x,y,id)
 	{
 		var object = document.createElement("div"); 
+
 		object.innerHTML = "0";
 		object.className = "player";
 		object.setAttribute("id", id);
+
+		object.tan = 0;
+		object.angle = 0;
+		object.torque = 1;
+		object.boost = 0;
+		object.xpos = x;
+		object.ypos = y;
+
+		object.onclick = function() { select(id); };
+
+		$("playground").appendChild(object);
+
+		locate(object);
 	}
 	function locate(obj)
 	{
@@ -365,13 +398,29 @@
 
 			locate(obj);
 
+			$('object').innerHTML = selectedObject.id;
 			$('angle').innerHTML = obj.angle+"deg";
 			$('sin').innerHTML = sin;
 			$('cos').innerHTML = cos;
+
+			obj.tan = Math.atan( sin / cos ).toFixed(2);
+			$('tan').innerHTML = Math.atan( sin / cos ).toFixed(2);
+
+
 			$('speed').innerHTML = speed;
 			$('boost').innerHTML = obj.boost+"/"+boostLimit;
 			$('torque').innerHTML = obj.torque;
 			$('distance').innerHTML = distance($('player'),$('player2'))
+
+			if (selectedObject.id == 'player') {
+				var anotherObject = $('player2');
+			}
+			else
+			{
+				var anotherObject = $('player');
+			}
+
+			targeting(selectedObject, anotherObject)
 
 			if (obj == selectedObject)
 			{
