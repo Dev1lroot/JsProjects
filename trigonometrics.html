@@ -36,9 +36,9 @@
 				</tr>
 				<tr>
 					<td>Angle:</td>
-					<td><p id="angle">0deg</p></td>
+					<td><p id="angle">0°</p></td>
 					<td>Torque:</td>
-					<td><p id="torque">0</p></td>
+					<td><p id="torque">0°</p></td>
 				</tr>
 				<tr>
 					<td>Sinus:</td>
@@ -65,15 +65,17 @@
 					<td colspan="3"><p id="distance">0</p></td>
 				</tr>
 				<tr>
-					<td>Dev:</td>
-					<td colspan="3"><p id="dev">0</p></td>
+					<td>Target:</td>
+					<td><p id="target">0°</p></td>
+					<td>Deviation:</td>
+					<td><p id="deviation">0</p></td>
 				</tr>
 			</tbody>
 		</table>
 		<p>Boost Limit:</p>
 		<input id="boostLimit" type="number" name="boostLimit" min="1" max="9000" step="1" value="4000">
 		<p>Torque:</p>
-		<input id="torqueLimit" type="number" name="torque" min="1" max="90" step="1" value="1">
+		<input id="torqueLimit" type="number" name="torque" min="0.1" max="90" step="1" value="1">
 	</div>
 	<div id="playground">
 	</div>
@@ -207,7 +209,6 @@
 
 		var zcos = observer.ypos - target.ypos;
 
-		var ztan = Math.atan(zsin / zcos).toFixed(4);
 		if (sin >= cos) {
 			var zdeg = Math.atan2(zsin, zcos) * 180 / Math.PI;
 		}
@@ -223,7 +224,17 @@
 			zdeg = Math.abs(zdeg)-360;
 		}
 
-		$('dev').innerHTML = "deg:"+zdeg;
+		$('target').innerHTML = zdeg.toFixed(0)+"°";
+
+		if (observer.angle >= zdeg.toFixed(0)) {
+			var dev = observer.angle - zdeg.toFixed(0);
+		}
+		else
+		{
+			var dev = zdeg.toFixed(0) - observer.angle;
+		}
+
+		$('deviation').innerHTML = dev;
 
 	}
 	function createPlayer(x,y,id)
@@ -257,7 +268,7 @@
 		var pixelsPerStep = 1;
 		var boostLimit = parseInt($('boostLimit').value);
 
-		obj.torque = parseInt($('torqueLimit').value);
+		obj.torque = parseFloat($('torqueLimit').value);
 
 		var angle = obj.angle;
 		var boost = obj.boost;
@@ -399,7 +410,7 @@
 			locate(obj);
 
 			$('object').innerHTML = selectedObject.id;
-			$('angle').innerHTML = obj.angle+"deg";
+			$('angle').innerHTML = obj.angle+"°";
 			$('sin').innerHTML = sin;
 			$('cos').innerHTML = cos;
 
@@ -409,7 +420,7 @@
 
 			$('speed').innerHTML = speed;
 			$('boost').innerHTML = obj.boost+"/"+boostLimit;
-			$('torque').innerHTML = obj.torque;
+			$('torque').innerHTML = obj.torque+"°";
 			$('distance').innerHTML = distance($('player'),$('player2'))
 
 			if (selectedObject.id == 'player') {
