@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		*{
+			padding: 0px;
+			margin: 0px;
+			font-size: 0px;
+		}
+		button{
+			background-color: #EEE;
+			font-size: 11px;
+			width: 32px;
+			height: 96px;
+			border: unset;
+			vertical-align: top;
+			border-right: 1px solid black;
+		}
+		button:active{
+			background-color: #CCC;
+		}
+		.sharp{
+			color:#EEE;
+			position: absolute;
+			width: 16px;
+			height: 64px !important;
+			background-color: #666;
+			margin-left: -8px;
+			margin-right: -8px;
+		}
+		.sharp:active{
+			background-color: #555;
+		}
+		.octave{
+			display: inline-block;
+		}
+	</style>
+</head>
+<body>
+	<div class="piano">
+		<div class="notes">
+			<div class="octave">
+				<button id="C" onmousedown="playNote(this,noteC.Freq(),400)">Q</button>
+				<button id="CSharp" onmousedown="playNote(this,noteCSharp.Freq(),400)" class="sharp">2</button>
+				<button id="D" onmousedown="playNote(this,noteD.Freq(),400)" >W</button>
+				<button id="DSharp" onmousedown="playNote(this,noteDSharp.Freq(),400)"  class="sharp">3</button>
+				<button id="E" onmousedown="playNote(this,noteE.Freq(),400)" >E</button>
+
+				<button id="F" onmousedown="playNote(this,noteF.Freq(),400)" >R</button>
+				<button id="FSharp" onmousedown="playNote(this,noteFSharp.Freq(),400)"  class="sharp">5</button>
+				<button id="G" onmousedown="playNote(this,noteG.Freq(),400)" >T</button>
+				<button id="GSharp" onmousedown="playNote(this,noteGSharp.Freq(),400)"  class="sharp">6</button>
+				<button id="A" onmousedown="playNote(this,noteA.Freq(),400)" >Y</button>
+				<button id="ASharp" onmousedown="playNote(this,noteASharp.Freq(),400)"  class="sharp">7</button>
+				<button id="B" onmousedown="playNote(this,noteB.Freq(),400)" >U</button>
+			</div>
+			<div class="octave">
+				<button id="C2" onmousedown="playNote(this,noteC2.Freq(),400)">I</button>
+				<button id="C2Sharp" onmousedown="playNote(this,noteC2Sharp.Freq(),400)" class="sharp">9</button>
+				<button id="D2" onmousedown="playNote(this,noteD2.Freq(),400)" >O</button>
+				<button id="D2Sharp" onmousedown="playNote(this,noteD2Sharp.Freq(),400)"  class="sharp">0</button>
+				<button id="E2" onmousedown="playNote(this,noteE2.Freq(),400)" >P</button>
+
+				<button id="F2" onmousedown="playNote(this,noteF2.Freq(),400)" >Z</button>
+				<button id="F2Sharp" onmousedown="playNote(this,noteF2Sharp.Freq(),400)"  class="sharp">S</button>
+				<button id="G2" onmousedown="playNote(this,noteG2.Freq(),400)" >X</button>
+				<button id="G2Sharp" onmousedown="playNote(this,noteG2Sharp.Freq(),400)"  class="sharp">D</button>
+				<button id="A2" onmousedown="playNote(this,noteA2.Freq(),400)" >C</button>
+				<button id="A2Sharp" onmousedown="playNote(this,noteA2Sharp.Freq(),400)"  class="sharp">F</button>
+				<button id="B2" onmousedown="playNote(this,noteB2.Freq(),400)" >V</button>
+			</div>
+			<div class="octave">
+				<button id="C3" onmousedown="playNote(this,noteC3.Freq(),400)">B</button>
+				<button id="C3Sharp" onmousedown="playNote(this,noteC3Sharp.Freq(),400)" class="sharp">H</button>
+				<button id="D3" onmousedown="playNote(this,noteD3.Freq(),400)" >N</button>
+				<button id="D3Sharp" onmousedown="playNote(this,noteD3Sharp.Freq(),400)"  class="sharp">J</button>
+				<button id="E3" onmousedown="playNote(this,noteE3.Freq(),400)" >M</button>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+
+function playNote(key, frequency, duration) {
+  var oscillator = audioCtx.createOscillator();
+  oscillator.type = 'square';
+  oscillator.frequency.value = frequency;
+  oscillator.connect(audioCtx.destination);
+  oscillator.start();
+  key.onmouseup = function(){
+  	oscillator.stop();
+  }
+  key.onmouseout = function(){
+  	oscillator.stop();
+  }
+}
+class Note{
+	constructor(name, frequency){
+		this.name = name;
+		this.frequency = frequency;
+
+		this.osc = audioCtx.createOscillator();
+		this.osc.type = 'square';
+		this.osc.frequency.value = this.frequency;
+		this.osc.connect(audioCtx.destination);
+
+		this.dom = document.getElementById(this.name)
+	}
+	Freq(){
+		return this.frequency;
+	}
+	Play(){
+		this.osc.start();
+
+		if (this.dom.className == "sharp") {
+			this.dom.style.background = '#555';
+		}
+		else
+		{
+			this.dom.style.background = '#CCC';
+		}
+	}
+	Stop(){
+		this.osc.stop();
+		this.osc = audioCtx.createOscillator();
+		this.osc.type = 'square';
+		this.osc.frequency.value = this.frequency;
+		this.osc.connect(audioCtx.destination);
+
+		if (this.dom.className == "sharp") {
+			this.dom.style.background = '#666';
+		}
+		else
+		{
+			this.dom.style.background = '#EEE';
+		}
+	}
+}
+
+var noteC = new Note("C",130.81);
+var noteCSharp = new Note("CSharp",138.59);
+var noteD = new Note("D",146.83);
+var noteDSharp = new Note("DSharp",155.56);
+var noteE = new Note("E",164.81);
+
+var noteF = new Note("F",174.61);
+var noteFSharp = new Note("FSharp",185.00);
+var noteG = new Note("G",196.00);
+var noteGSharp = new Note("GSharp",207.65);
+var noteA = new Note("A",220.00);
+var noteASharp = new Note("ASharp",233.08);
+var noteB = new Note("B",246.94);
+
+var noteC2 = new Note("C2",261.63);
+var noteC2Sharp = new Note("C2Sharp",277.18);
+var noteD2 = new Note("D2",293.66);
+var noteD2Sharp = new Note("D2Sharp",311.13);
+var noteE2 = new Note("E2",329.63);
+
+var noteF2 = new Note("F2",349.23);
+var noteF2Sharp = new Note("F2Sharp",369.99);
+var noteG2 = new Note("G2",392.00);
+var noteG2Sharp = new Note("G2Sharp",415.30);
+var noteA2 = new Note("A2",440.00);
+var noteA2Sharp = new Note("A2Sharp",466.16);
+var noteB2 = new Note("B2",493.88);
+
+var noteC3 = new Note("C3",523.25);
+var noteC3Sharp = new Note("C3Sharp",554.37);
+var noteD3 = new Note("D3",587.33);
+var noteD3Sharp = new Note("D3Sharp",622.25);
+var noteE3 = new Note("E3",659.26);
+
+document.addEventListener('keypress', function(e){
+	if (e.code == "KeyQ") {
+		noteC.Play();
+	}
+	if (e.code == "Digit2") {
+		noteCSharp.Play();
+	}
+	if (e.code == "KeyW") {
+		noteD.Play();
+	}
+	if (e.code == "Digit3") {
+		noteDSharp.Play();
+	}
+	if (e.code == "KeyE") {
+		noteE.Play();
+	}
+
+	if (e.code == "KeyR") {
+		noteF.Play();
+	}
+	if (e.code == "Digit5") {
+		noteFSharp.Play();
+	}
+	if (e.code == "KeyT") {
+		noteG.Play();
+	}
+	if (e.code == "Digit6") {
+		noteGSharp.Play();
+	}
+	if (e.code == "KeyY") {
+		noteA.Play();
+	}
+	if (e.code == "Digit7") {
+		noteASharp.Play();
+	}
+	if (e.code == "KeyU") {
+		noteB.Play();
+	}
+
+	if (e.code == "KeyI") {
+		noteC2.Play();
+	}
+	if (e.code == "Digit9") {
+		noteC2Sharp.Play();
+	}
+	if (e.code == "KeyO") {
+		noteD2.Play();
+	}
+	if (e.code == "Digit0") {
+		noteD2Sharp.Play();
+	}
+	if (e.code == "KeyP") {
+		noteE2.Play();
+	}
+
+	if (e.code == "KeyZ") {
+		noteF2.Play();
+	}
+	if (e.code == "KeyS") {
+		noteF2Sharp.Play();
+	}
+	if (e.code == "KeyX") {
+		noteG2.Play();
+	}
+	if (e.code == "KeyD") {
+		noteG2Sharp.Play();
+	}
+	if (e.code == "KeyC") {
+		noteA2.Play();
+	}
+	if (e.code == "KeyF") {
+		noteA2Sharp.Play();
+	}
+	if (e.code == "KeyV") {
+		noteB2.Play();
+	}
+
+	if (e.code == "KeyB") {
+		noteC3.Play();
+	}
+	if (e.code == "KeyH") {
+		noteC3Sharp.Play();
+	}
+	if (e.code == "KeyN") {
+		noteD3.Play();
+	}
+	if (e.code == "KeyJ") {
+		noteD3Sharp.Play();
+	}
+	if (e.code == "KeyM") {
+		noteE3.Play();
+	}
+});
+document.addEventListener('keyup', function(e){
+	if (e.code == "KeyQ") {
+		noteC.Stop();
+	}
+	if (e.code == "Digit2") {
+		noteCSharp.Stop();
+	}
+	if (e.code == "KeyW") {
+		noteD.Stop();
+	}
+	if (e.code == "Digit3") {
+		noteDSharp.Stop();
+	}
+	if (e.code == "KeyE") {
+		noteE.Stop();
+	}
+
+	if (e.code == "KeyR") {
+		noteF.Stop();
+	}
+	if (e.code == "Digit5") {
+		noteFSharp.Stop();
+	}
+	if (e.code == "KeyT") {
+		noteG.Stop();
+	}
+	if (e.code == "Digit6") {
+		noteGSharp.Stop();
+	}
+	if (e.code == "KeyY") {
+		noteA.Stop();
+	}
+	if (e.code == "Digit7") {
+		noteASharp.Stop();
+	}
+	if (e.code == "KeyU") {
+		noteB.Stop();
+	}
+
+	if (e.code == "KeyI") {
+		noteC2.Stop();
+	}
+	if (e.code == "Digit9") {
+		noteC2Sharp.Stop();
+	}
+	if (e.code == "KeyO") {
+		noteD2.Stop();
+	}
+	if (e.code == "Digit0") {
+		noteD2Sharp.Stop();
+	}
+	if (e.code == "KeyP") {
+		noteE2.Stop();
+	}
+
+
+	if (e.code == "KeyZ") {
+		noteF2.Stop();
+	}
+	if (e.code == "KeyS") {
+		noteF2Sharp.Stop();
+	}
+	if (e.code == "KeyX") {
+		noteG2.Stop();
+	}
+	if (e.code == "KeyD") {
+		noteG2Sharp.Stop();
+	}
+	if (e.code == "KeyC") {
+		noteA2.Stop();
+	}
+	if (e.code == "KeyF") {
+		noteA2Sharp.Stop();
+	}
+	if (e.code == "KeyV") {
+		noteB2.Stop();
+	}
+
+	if (e.code == "KeyB") {
+		noteC3.Stop();
+	}
+	if (e.code == "KeyH") {
+		noteC3Sharp.Stop();
+	}
+	if (e.code == "KeyN") {
+		noteD3.Stop();
+	}
+	if (e.code == "KeyJ") {
+		noteD3Sharp.Stop();
+	}
+	if (e.code == "KeyM") {
+		noteE3.Stop();
+	}
+});
+</script>
+</html>
