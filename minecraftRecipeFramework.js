@@ -1,7 +1,7 @@
-// Minecraft Recipe Framework v2.0 (27 FEB 2020)
+// Minecraft Recipe Framework v2.0 (23 MAR 2020)
 // =============================================
 // Author:      Dev1lroot
-// Dependecies: jQuery
+// Dependecies: jQuery, ColorizeLib
 // =============================================
 class ItemStack
 {
@@ -22,13 +22,13 @@ class ItemStack
 		if (this.item.display != undefined) {
 			it += '<div class="tooltip">'
 			if (this.item.display.name != undefined) {
-				it += '<p class="name">'+this.item.display.name+'</p>';
+				it += '<p class="name">'+ColorizedOut(this.item.display.name)+'</p>';
 			}
 			if (this.item.display.lore != undefined) {
-				it += '<p class="lore">'+this.item.display.lore+'</p>';
+				it += '<p class="lore">'+ColorizedOut(this.item.display.lore)+'</p>';
 			}
 			if (this.item.id != undefined) {
-				it += '<p class="modid">'+this.item.id+'</p>';
+				it += '<p class="modid">'+ColorizedOut(this.item.id)+'</p>';
 			}
 			it += '</div>';
 		}
@@ -53,13 +53,13 @@ class Item
 		if (this.item.display != undefined) {
 			it += '<div class="tooltip">'
 			if (this.item.display.name != undefined) {
-				it += '<p class="name">'+this.item.display.name+'</p>';
+				it += '<p class="name">'+ColorizedOut(this.item.display.name)+'</p>';
 			}
 			if (this.item.display.lore != undefined) {
-				it += '<p class="lore">'+this.item.display.lore+'</p>';
+				it += '<p class="lore">'+ColorizedOut(this.item.display.lore)+'</p>';
 			}
 			if (this.item.id != undefined) {
-				it += '<p class="modid">'+this.item.id+'</p>';
+				it += '<p class="modid">'+ColorizedOut(this.item.id)+'</p>';
 			}
 			it += '</div>';
 		}
@@ -80,13 +80,13 @@ class Block
 		if (this.block.display != undefined) {
 			blockItem += '<div class="tooltip">'
 			if (this.block.display.name != undefined) {
-				blockItem += '<p class="name">'+this.block.display.name+'</p>';
+				blockItem += '<p class="name">'+ColorizedOut(this.block.display.name)+'</p>';
 			}
 			if (this.block.display.lore != undefined) {
-				blockItem += '<p class="lore">'+this.block.display.lore+'</p>';
+				blockItem += '<p class="lore">'+ColorizedOut(this.block.display.lore)+'</p>';
 			}
 			if (this.block.id != undefined) {
-				blockItem += '<p class="modid">'+this.block.id+'</p>';
+				blockItem += '<p class="modid">'+ColorizedOut(this.block.id)+'</p>';
 			}
 			blockItem += '</div>';
 		}
@@ -288,6 +288,18 @@ class MetalformerRecipe extends MaceratorRecipe {
 		this.arrow = '<div class="metalformer w25 h2 "></div>';
 	}
 }
+class CutterRecipe extends MaceratorRecipe {
+	constructor(object){
+    	super(object);
+    	this.hardness = 3;
+    	if (object.hardness != undefined) {
+    		this.hardness = object.hardness;
+    	}
+    	this.name = 'Пилорама';
+		this.arrow = '<div class="cutter w3 h2 "></div>';
+		this.ctformula = "BlockCutter.addRecipe(%output%, %input%, "+this.hardness+");";
+	}
+}
 class InductionSmelterRecipe extends GenericRecipe {
 	constructor(object){
     	super(object);
@@ -323,6 +335,7 @@ class CircuitFabricatorRecipe extends GenericRecipe {
     	this.name = "Завод Электросхем"
 		this.arrow = '<div class="cf w1 h1 "></div>';
 		this.power = '';
+		this.ctformula = "mods.GalacticraftTweaker.addCircuitFabricatorRecipe(%output%, %0%, %1%, %2%, %3%, %4%);";
 		this.gui.slots = [
 			{
 				w:1,
